@@ -1,0 +1,56 @@
+# AWS Credentials and Session Files
+.aws/
+.env
+session.json
+/tmp/session.json
+*.pem
+*.key
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+*.tfvars
+*.tfvars.json
+.terraformrc
+terraform.rc
+
+# Kubernetes
+kubeconfig*
+*.crt
+*.csr
+*.kubeconfig
+
+# Logs and Temporary Files
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.DS_Store
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+*.egg-info/
+
+# Build artifacts
+dist/
+build/
+*.zip
