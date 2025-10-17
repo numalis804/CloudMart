@@ -55,6 +55,7 @@ resource "aws_kms_alias" "dynamodb_lock" {
 }
 
 # S3 Bucket for access logs
+# tfsec:ignore:aws-s3-enable-bucket-logging - Logs bucket cannot log to itself (circular dependency)
 resource "aws_s3_bucket" "logs" {
   bucket = "${var.state_bucket_name}-logs"
 
@@ -87,14 +88,16 @@ resource "aws_s3_bucket_versioning" "logs" {
   }
 }
 
-# Encryption for logs bucket
+# Encryption for logs bucket using customer-managed KMS key
 resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
   bucket = aws_s3_bucket.logs.id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.terraform_state.arn
     }
+    bucket_key_enabled = true
   }
 }
 
