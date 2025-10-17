@@ -22,6 +22,82 @@ provider "aws" {
   }
 }
 
+# KMS Key for S3 bucket encryption
+resource "aws_kms_key" "terraform_state" {
+  description             = "KMS key for CloudMart Terraform state bucket encryption"
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+
+  tags = {
+    Name = "cloudmart-terraform-state-key"
+  }
+}
+
+resource "aws_kms_alias" "terraform_state" {
+  name          = "alias/cloudmart-terraform-state"
+  target_key_id = aws_kms_key.terraform_state.key_id
+}
+
+# KMS Key for DynamoDB table encryption
+resource "aws_kms_key" "dynamodb_lock" {
+  description             = "KMS key for CloudMart Terraform lock table encryption"
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+
+  tags = {
+    Name = "cloudmart-dynamodb-lock-key"
+  }
+}
+
+resource "aws_kms_alias" "dynamodb_lock" {
+  name          = "alias/cloudmart-dynamodb-lock"
+  target_key_id = aws_kms_key.dynamodb_lock.key_id
+}
+
+# S3 Bucket for access logs
+resource "aws_s3_bucket" "logs" {
+  bucket = "${var.state_bucket_name}-logs"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  tags = {
+    Name        = "CloudMart Terraform State Logs"
+    Description = "Access logs for Terraform state bucket"
+  }
+}
+
+# Block public access on logs bucket
+resource "aws_s3_bucket_public_access_block" "logs" {
+  bucket = aws_s3_bucket.logs.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Enable versioning for logs bucket
+resource "aws_s3_bucket_versioning" "logs" {
+  bucket = aws_s3_bucket.logs.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# Encryption for logs bucket
+resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
+  bucket = aws_s3_bucket.logs.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
 # S3 Bucket for Terraform State
 resource "aws_s3_bucket" "terraform_state" {
   bucket = var.state_bucket_name
@@ -45,15 +121,25 @@ resource "aws_s3_bucket_versioning" "terraform_state" {
   }
 }
 
-# Enable server-side encryption
+# Enable server-side encryption with customer-managed KMS key
 resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
   bucket = aws_s3_bucket.terraform_state.id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.terraform_state.arn
     }
+    bucket_key_enabled = true
   }
+}
+
+# Enable access logging
+resource "aws_s3_bucket_logging" "terraform_state" {
+  bucket = aws_s3_bucket.terraform_state.id
+
+  target_bucket = aws_s3_bucket.logs.id
+  target_prefix = "terraform-state-access-logs/"
 }
 
 # Block public access
@@ -74,6 +160,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "terraform_state" {
     id     = "expire-old-versions"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     noncurrent_version_expiration {
       noncurrent_days = 90
     }
@@ -82,6 +172,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "terraform_state" {
   rule {
     id     = "abort-incomplete-multipart-uploads"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
 
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
@@ -105,7 +199,8 @@ resource "aws_dynamodb_table" "terraform_lock" {
   }
 
   server_side_encryption {
-    enabled = true
+    enabled     = true
+    kms_key_arn = aws_kms_key.dynamodb_lock.arn
   }
 
   lifecycle {

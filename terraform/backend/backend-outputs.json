@@ -8,6 +8,7 @@
         "dynamodb_table": "string",
         "encrypt": "bool",
         "key": "string",
+        "kms_key_id": "string",
         "region": "string"
       }
     ],
@@ -16,8 +17,24 @@
       "dynamodb_table": "cloudmart-terraform-lock",
       "encrypt": true,
       "key": "example/terraform.tfstate",
+      "kms_key_id": "13e58342-67f9-4df9-95b1-c4c7543d7f05",
       "region": "eu-central-1"
     }
+  },
+  "dynamodb_kms_key_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:kms:eu-central-1:197423061144:key/2c985282-ff27-4bb8-8d4d-9d6bcc2d07d6"
+  },
+  "kms_key_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:kms:eu-central-1:197423061144:key/13e58342-67f9-4df9-95b1-c4c7543d7f05"
+  },
+  "kms_key_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "13e58342-67f9-4df9-95b1-c4c7543d7f05"
   },
   "lock_table_arn": {
     "sensitive": false,
@@ -28,6 +45,11 @@
     "sensitive": false,
     "type": "string",
     "value": "cloudmart-terraform-lock"
+  },
+  "logs_bucket_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "cloudmart-terraform-state-804-logs"
   },
   "state_bucket_arn": {
     "sensitive": false,
