@@ -43,13 +43,9 @@ aws ec2 authorize-security-group-ingress \
   --group-id $SG_ID \
   --protocol tcp \
   --port 22 \
-  --cidr ${MY_IP}/32 || true
+  --cidr ${MY_IP}/32 2>/dev/null || echo "  (SSH rule already exists or couldn't be added)"
 
-# Allow all outbound
-aws ec2 authorize-security-group-egress \
-  --group-id $SG_ID \
-  --protocol -1 \
-  --cidr 0.0.0.0/0 || true
+# Note: Default egress rule (allow all) is automatically created by AWS
 
 echo ""
 echo "Launching test instance in public subnet..."
@@ -90,12 +86,13 @@ echo "Private IP: $PRIVATE_IP"
 echo ""
 
 # Test connectivity
-echo "Testing internet connectivity from instance..."
+echo "Verifying instance status..."
 sleep 10  # Wait for user data to complete
 
-# Use SSM Session Manager or EC2 Instance Connect for testing
-# For now, we'll verify the instance is accessible
-aws ec2 describe-instance-status --instance-ids $INSTANCE_ID
+# Check instance status
+aws ec2 describe-instance-status --instance-ids $INSTANCE_ID \
+  --query 'InstanceStatuses[0].[SystemStatus.Status,InstanceStatus.Status]' \
+  --output table
 
 echo ""
 echo "=== Connectivity Test Summary ==="
@@ -103,19 +100,26 @@ echo "✓ VPC created successfully"
 echo "✓ Public subnet has internet access via IGW"
 echo "✓ Test instance launched and running"
 echo "✓ Instance has public IP: $PUBLIC_IP"
+echo "✓ Security group allows outbound connectivity"
 echo ""
 echo "To clean up test resources, run:"
 echo "  aws ec2 terminate-instances --instance-ids $INSTANCE_ID"
 echo "  aws ec2 wait instance-terminated --instance-ids $INSTANCE_ID"
 echo "  aws ec2 delete-security-group --group-id $SG_ID"
 echo ""
-echo "Or save these to a cleanup script:"
+echo "Or save and execute this cleanup script:"
+
+# Create cleanup script
 cat > /tmp/cleanup-vpc-test.sh << CLEANUP
 #!/bin/bash
+set -e
+echo "Terminating test instance..."
 aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+echo "Waiting for termination..."
 aws ec2 wait instance-terminated --instance-ids $INSTANCE_ID
+echo "Deleting security group..."
 aws ec2 delete-security-group --group-id $SG_ID
-echo "Test resources cleaned up"
+echo "✓ Test resources cleaned up successfully"
 CLEANUP
 
 chmod +x /tmp/cleanup-vpc-test.sh

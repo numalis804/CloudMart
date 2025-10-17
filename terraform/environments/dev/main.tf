@@ -11,11 +11,13 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "cloudmart-terraform-state-804"
-    key            = "dev/terraform.tfstate"
-    region         = "eu-central-1"
+    bucket  = "cloudmart-terraform-state-804"
+    key     = "dev/terraform.tfstate"
+    region  = "eu-central-1"
+    encrypt = true
+
+    # DynamoDB table for state locking
     dynamodb_table = "cloudmart-terraform-lock"
-    encrypt        = true
   }
 }
 

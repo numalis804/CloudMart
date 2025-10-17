@@ -28,6 +28,7 @@ resource "aws_internet_gateway" "main" {
 }
 
 # Public Subnets (one per AZ)
+# tfsec:ignore:aws-ec2-no-public-ip-subnet - Public subnets intentionally auto-assign IPs for load balancers and bastion hosts
 resource "aws_subnet" "public" {
   count = length(var.availability_zones)
 
@@ -254,7 +255,81 @@ resource "aws_network_acl" "private" {
   )
 }
 
-# VPC Flow Logs (for monitoring and security)
+# KMS Key for CloudWatch Logs Encryption
+resource "aws_kms_key" "flow_logs" {
+  count = var.enable_flow_logs ? 1 : 0
+
+  description             = "KMS key for CloudMart VPC Flow Logs encryption"
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow CloudWatch Logs"
+        Effect = "Allow"
+        Principal = {
+          Service = "logs.${data.aws_region.current.name}.amazonaws.com"
+        }
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:CreateGrant",
+          "kms:DescribeKey"
+        ]
+        Resource = "*"
+        Condition = {
+          ArnLike = {
+            "kms:EncryptionContext:aws:logs:arn" = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:/aws/vpc/${var.project_name}-${var.environment}"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "${var.project_name}-${var.environment}-flow-logs-key"
+    }
+  )
+}
+
+resource "aws_kms_alias" "flow_logs" {
+  count = var.enable_flow_logs ? 1 : 0
+
+  name          = "alias/${var.project_name}-${var.environment}-flow-logs"
+  target_key_id = aws_kms_key.flow_logs[0].key_id
+}
+
+# Data sources for account and region
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+# CloudWatch Log Group for VPC Flow Logs
+resource "aws_cloudwatch_log_group" "flow_logs" {
+  count = var.enable_flow_logs ? 1 : 0
+
+  name              = "/aws/vpc/${var.project_name}-${var.environment}"
+  retention_in_days = 7
+  kms_key_id        = aws_kms_key.flow_logs[0].arn
+
+  tags = var.common_tags
+}
+
+# VPC Flow Logs
 resource "aws_flow_log" "main" {
   count = var.enable_flow_logs ? 1 : 0
 
@@ -269,16 +344,6 @@ resource "aws_flow_log" "main" {
       Name = "${var.project_name}-${var.environment}-vpc-flow-logs"
     }
   )
-}
-
-# CloudWatch Log Group for VPC Flow Logs
-resource "aws_cloudwatch_log_group" "flow_logs" {
-  count = var.enable_flow_logs ? 1 : 0
-
-  name              = "/aws/vpc/${var.project_name}-${var.environment}"
-  retention_in_days = 7
-
-  tags = var.common_tags
 }
 
 # IAM Role for VPC Flow Logs
@@ -303,7 +368,7 @@ resource "aws_iam_role" "flow_logs" {
   tags = var.common_tags
 }
 
-# IAM Policy for VPC Flow Logs
+# IAM Policy for VPC Flow Logs with scoped permissions
 resource "aws_iam_role_policy" "flow_logs" {
   count = var.enable_flow_logs ? 1 : 0
 
@@ -322,7 +387,10 @@ resource "aws_iam_role_policy" "flow_logs" {
           "logs:DescribeLogGroups",
           "logs:DescribeLogStreams"
         ]
-        Resource = "*"
+        Resource = [
+          aws_cloudwatch_log_group.flow_logs[0].arn,
+          "${aws_cloudwatch_log_group.flow_logs[0].arn}:*"
+        ]
       }
     ]
   })
