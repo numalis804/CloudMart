@@ -65,3 +65,21 @@ module "security_groups" {
 
   depends_on = [module.vpc]
 }
+
+# IAM Module
+module "iam" {
+  source = "../../modules/iam"
+
+  project_name = var.project_name
+  environment  = var.environment
+
+  # IRSA will be enabled after EKS cluster creation in Phase 2
+  enable_irsa             = false
+  eks_oidc_provider_arn   = ""
+  eks_oidc_provider       = ""
+  kubernetes_namespace    = "${var.project_name}-${var.environment}"
+
+  common_tags = var.common_tags
+
+  depends_on = [module.vpc]
+}

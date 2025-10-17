@@ -54,3 +54,29 @@ output "security_group_summary" {
   description = "Summary of all security groups"
   value       = module.security_groups.security_group_summary
 }
+
+# IAM Outputs
+output "eks_cluster_role_arn" {
+  description = "EKS cluster role ARN"
+  value       = module.iam.eks_cluster_role_arn
+}
+
+output "eks_node_group_role_arn" {
+  description = "EKS node group role ARN"
+  value       = module.iam.eks_node_group_role_arn
+}
+
+output "parameter_store_policy_arn" {
+  description = "Parameter Store policy ARN"
+  value       = module.iam.parameter_store_policy_arn
+}
+
+output "secrets_manager_policy_arn" {
+  description = "Secrets Manager policy ARN"
+  value       = module.iam.secrets_manager_policy_arn
+}
+
+output "iam_roles_summary" {
+  description = "Summary of all IAM roles"
+  value       = module.iam.iam_roles_summary
+}
