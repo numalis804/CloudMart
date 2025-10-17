@@ -1,0 +1,47 @@
+{
+  "backend_config": {
+    "sensitive": false,
+    "type": [
+      "object",
+      {
+        "bucket": "string",
+        "dynamodb_table": "string",
+        "encrypt": "bool",
+        "key": "string",
+        "region": "string"
+      }
+    ],
+    "value": {
+      "bucket": "cloudmart-terraform-state-804",
+      "dynamodb_table": "cloudmart-terraform-lock",
+      "encrypt": true,
+      "key": "example/terraform.tfstate",
+      "region": "eu-central-1"
+    }
+  },
+  "lock_table_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:dynamodb:eu-central-1:197423061144:table/cloudmart-terraform-lock"
+  },
+  "lock_table_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "cloudmart-terraform-lock"
+  },
+  "state_bucket_arn": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:s3:::cloudmart-terraform-state-804"
+  },
+  "state_bucket_name": {
+    "sensitive": false,
+    "type": "string",
+    "value": "cloudmart-terraform-state-804"
+  },
+  "state_bucket_region": {
+    "sensitive": false,
+    "type": "string",
+    "value": "eu-central-1"
+  }
+}
