@@ -1,0 +1,8 @@
+{
+    "editor.fastScrollSensitivity": 1,
+    "workbench.list.fastScrollSensitivity": 1,
+    "editor.smoothScrolling": true,
+    "editor.cursorSmoothCaretAnimation": "on",
+    "workbench.list.smoothScrolling": true,
+    "terminal.integrated.smoothScrolling": true
+}
