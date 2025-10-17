@@ -102,14 +102,12 @@ resource "aws_vpc_security_group_ingress_rule" "eks_from_alb" {
   }
 }
 
-# EKS Nodes Ingress - inter-node communication
+# EKS Nodes Ingress - inter-node communication (all protocols, no port specification)
 resource "aws_vpc_security_group_ingress_rule" "eks_inter_node" {
   security_group_id = aws_security_group.eks_nodes.id
   description       = "Allow inter-node communication"
 
-  from_port                    = 0
-  to_port                      = 65535
-  ip_protocol                  = "-1"
+  ip_protocol                  = "-1"  # All protocols
   referenced_security_group_id = aws_security_group.eks_nodes.id
 
   tags = {
