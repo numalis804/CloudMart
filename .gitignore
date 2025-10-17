@@ -1,0 +1,95 @@
+# AWS Credentials and Configuration
+.aws/
+*.pem
+*.key
+session.json
+credentials
+config
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.test
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraformrc
+terraform.rc
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Kubernetes
+kubeconfig*
+*.crt
+*.csr
+*.kubeconfig
+kube-config
+.kube/
+
+# Logs and Temporary Files
+*.log
+*.tmp
+*.temp
+.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Build artifacts and dependencies
+node_modules/
+dist/
+build/
+target/
+*.jar
+*.war
+*.ear
+.next/
+out/
+
+# OS specific
+Thumbs.db
+Desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Docker
+.docker/
+
+# Sensitive data
+secrets/
+private/
