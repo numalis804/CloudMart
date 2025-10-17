@@ -1,0 +1,56 @@
+{
+  "nat_gateway_ips": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string"
+      ]
+    ],
+    "value": [
+      "52.59.105.104"
+    ]
+  },
+  "private_subnet_ids": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string",
+        "string",
+        "string"
+      ]
+    ],
+    "value": [
+      "subnet-0b0b5d31677703a12",
+      "subnet-0bbd01d8014fac7eb",
+      "subnet-0348d185165dbe50e"
+    ]
+  },
+  "public_subnet_ids": {
+    "sensitive": false,
+    "type": [
+      "tuple",
+      [
+        "string",
+        "string",
+        "string"
+      ]
+    ],
+    "value": [
+      "subnet-0c7ea1030effc2a60",
+      "subnet-077d3afb5ce837f4e",
+      "subnet-09347dde258a94f23"
+    ]
+  },
+  "vpc_cidr": {
+    "sensitive": false,
+    "type": "string",
+    "value": "10.0.0.0/16"
+  },
+  "vpc_id": {
+    "sensitive": false,
+    "type": "string",
+    "value": "vpc-0b9d10767572f8205"
+  }
+}
