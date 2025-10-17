@@ -93,3 +93,7 @@ env/
 # Sensitive data
 secrets/
 private/
+
+# Terraform plan files
+*.tfplan
+*.tfplan.json
