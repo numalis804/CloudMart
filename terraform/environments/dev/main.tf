@@ -81,3 +81,35 @@ module "iam" {
 
   depends_on = [module.vpc]
 }
+
+# EKS Cluster Module
+module "eks" {
+  source = "../../modules/eks"
+
+  project_name = var.project_name
+  environment  = var.environment
+
+  cluster_version  = var.eks_cluster_version
+  cluster_role_arn = module.iam.eks_cluster_role_arn
+
+  private_subnet_ids        = module.vpc.private_subnet_ids
+  public_subnet_ids         = module.vpc.public_subnet_ids
+  cluster_security_group_id = module.security_groups.eks_control_plane_security_group_id
+
+  # Endpoint configuration
+  cluster_endpoint_private_access      = true
+  cluster_endpoint_public_access       = true
+  cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]  # Restrict in production
+
+  # Enable comprehensive logging
+  enabled_cluster_log_types  = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  cluster_log_retention_days = 7
+
+  common_tags = var.common_tags
+
+  depends_on = [
+    module.vpc,
+    module.security_groups,
+    module.iam
+  ]
+}

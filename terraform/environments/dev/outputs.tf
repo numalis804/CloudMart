@@ -85,3 +85,44 @@ output "aws_region" {
   description = "AWS region"
   value       = var.aws_region
 }
+
+# EKS Cluster Outputs
+output "eks_cluster_id" {
+  description = "EKS cluster name"
+  value       = module.eks.cluster_id
+}
+
+output "eks_cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  value       = module.eks.cluster_endpoint
+}
+
+output "eks_cluster_version" {
+  description = "EKS cluster Kubernetes version"
+  value       = module.eks.cluster_version
+}
+
+output "eks_cluster_arn" {
+  description = "EKS cluster ARN"
+  value       = module.eks.cluster_arn
+}
+
+output "eks_oidc_provider_arn" {
+  description = "OIDC provider ARN for IRSA"
+  value       = module.eks.oidc_provider_arn
+}
+
+output "eks_oidc_provider" {
+  description = "OIDC provider URL (without https://)"
+  value       = module.eks.oidc_provider
+}
+
+output "eks_cluster_security_group_id" {
+  description = "EKS cluster security group ID"
+  value       = module.eks.cluster_security_group_id
+}
+
+output "eks_kms_key_arn" {
+  description = "KMS key ARN for EKS encryption"
+  value       = module.eks.kms_key_arn
+}

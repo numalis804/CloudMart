@@ -36,3 +36,10 @@ variable "common_tags" {
     ManagedBy = "Terraform"
   }
 }
+
+# EKS Configuration
+variable "eks_cluster_version" {
+  description = "Kubernetes version for EKS cluster"
+  type        = string
+  default     = "1.28"
+}
