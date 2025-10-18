@@ -173,3 +173,111 @@ This is expected before node groups are created. Add-ons will update automatical
 **Status:** ✅ EKS cluster operational, ready for node groups
 **Last Updated:** $(date +"%Y-%m-%d %H:%M:%S")
 **Next:** Step 2.2 - Create EKS Node Groups
+
+---
+
+## Node Groups (Updated)
+
+### On-Demand Node Group
+
+**Configuration:**
+- Instance Type: t3.medium
+- Capacity: Min 2, Max 5, Desired 2
+- Subnets: Private subnets across multiple AZs
+- Labels: `nodegroup-type=on-demand`, `instance-lifecycle=on-demand`
+- Taints: None
+
+**Usage:**
+```yaml
+# All pods schedule here by default
+spec:
+  containers:
+  - name: app
+    image: myapp:latest
+```
+
+### Spot Node Group (Optional)
+
+**Configuration:**
+- Instance Types: t3.medium, t3a.medium, t2.medium (mixed)
+- Capacity: Min 0, Max 3, Desired 0
+- Subnets: Private subnets across multiple AZs
+- Labels: `nodegroup-type=spot`, `instance-lifecycle=spot`
+- Taints: `spot=true:NoSchedule`
+
+**Usage:**
+```yaml
+# Pods must explicitly tolerate spot nodes
+spec:
+  tolerations:
+  - key: "spot"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+  nodeSelector:
+    nodegroup-type: spot
+  containers:
+  - name: batch-job
+    image: batch:latest
+```
+
+## Cost Breakdown (Updated)
+
+**Monthly Costs:**
+- EKS Control Plane: $73.00
+- KMS Keys: $2.00
+- CloudWatch Logs: ~$2.00
+- VPC (NAT Gateway): ~$32.00
+- **On-Demand Nodes (2x t3.medium):** ~$60.00
+- Spot Nodes (when scaled up): ~$9/node/month
+- **Total (with 2 on-demand nodes):** ~$169/month
+
+**Cost optimization tip:** Use spot nodes for batch jobs, CI/CD, and non-critical workloads to save up to 70%.
+
+## Verification Commands (Updated)
+```bash
+# List node groups
+aws eks list-nodegroups --cluster-name cloudmart-dev
+
+# Describe node group
+aws eks describe-nodegroup \
+  --cluster-name cloudmart-dev \
+  --nodegroup-name cloudmart-dev-ondemand
+
+# View nodes
+kubectl get nodes
+kubectl get nodes -o wide
+kubectl describe nodes
+
+# Check node labels
+kubectl get nodes --show-labels
+
+# View system pods (should all be running now)
+kubectl get pods -n kube-system
+
+# Check node capacity
+kubectl top nodes
+
+# Run verification script
+cd ~/GitHub/CloudMart/scripts
+./verify-nodes.sh
+```
+
+## Current Status (Updated)
+
+✅ **Operational:**
+- EKS Control Plane
+- OIDC Provider
+- 2 Worker Nodes (on-demand)
+- VPC CNI
+- kube-proxy
+- kubectl configured
+
+⏭️ **Next Steps:**
+- Deploy CoreDNS add-on (Step 2.3)
+- Deploy EBS CSI Driver (Step 2.3)
+- Create IRSA service account roles (Step 2.3)
+- Install AWS Load Balancer Controller (Step 2.4)
+
+---
+**Last Updated:** $(date +"%Y-%m-%d %H:%M:%S")

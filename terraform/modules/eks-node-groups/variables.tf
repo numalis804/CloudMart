@@ -1,50 +1,50 @@
-variable "aws_region" {
-  description = "AWS region"
-  type        = string
-  default     = "eu-central-1"
-}
-
 variable "project_name" {
-  description = "Project name"
+  description = "Name of the project"
   type        = string
-  default     = "cloudmart"
 }
 
 variable "environment" {
   description = "Environment name"
   type        = string
-  default     = "dev"
 }
 
-variable "vpc_cidr" {
-  description = "CIDR block for VPC"
+variable "cluster_name" {
+  description = "Name of the EKS cluster"
   type        = string
-  default     = "10.0.0.0/16"
 }
 
-variable "availability_zones" {
-  description = "Availability zones"
+variable "cluster_version" {
+  description = "Kubernetes version"
+  type        = string
+}
+
+variable "cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  type        = string
+}
+
+variable "cluster_certificate_authority_data" {
+  description = "EKS cluster certificate authority data"
+  type        = string
+  sensitive   = true
+}
+
+variable "node_role_arn" {
+  description = "IAM role ARN for node groups"
+  type        = string
+}
+
+variable "node_security_group_id" {
+  description = "Security group ID for worker nodes"
+  type        = string
+}
+
+variable "private_subnet_ids" {
+  description = "List of private subnet IDs for node groups"
   type        = list(string)
-  default     = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
 }
 
-variable "common_tags" {
-  description = "Common tags"
-  type        = map(string)
-  default = {
-    Project   = "CloudMart"
-    ManagedBy = "Terraform"
-  }
-}
-
-# EKS Configuration
-variable "eks_cluster_version" {
-  description = "Kubernetes version for EKS cluster"
-  type        = string
-  default     = "1.28"
-}
-
-# Node Groups Configuration
+# On-Demand Node Group Configuration
 variable "ondemand_instance_types" {
   description = "Instance types for on-demand node group"
   type        = list(string)
@@ -69,8 +69,9 @@ variable "ondemand_desired_size" {
   default     = 2
 }
 
+# Spot Node Group Configuration
 variable "enable_spot_node_group" {
-  description = "Enable spot node group for cost optimization"
+  description = "Enable spot node group"
   type        = bool
   default     = true
 }
@@ -103,4 +104,10 @@ variable "cost_center" {
   description = "Cost center tag for billing allocation"
   type        = string
   default     = "CloudMart-Development"
+}
+
+variable "common_tags" {
+  description = "Common tags to apply to all resources"
+  type        = map(string)
+  default     = {}
 }

@@ -113,3 +113,42 @@ module "eks" {
     module.iam
   ]
 }
+
+# EKS Node Groups Module
+module "eks_node_groups" {
+  source = "../../modules/eks-node-groups"
+
+  project_name = var.project_name
+  environment  = var.environment
+
+  cluster_name                       = module.eks.cluster_id
+  cluster_version                    = module.eks.cluster_version
+  cluster_endpoint                   = module.eks.cluster_endpoint
+  cluster_certificate_authority_data = module.eks.cluster_certificate_authority_data
+
+  node_role_arn          = module.iam.eks_node_group_role_arn
+  node_security_group_id = module.security_groups.eks_nodes_security_group_id
+  private_subnet_ids     = module.vpc.private_subnet_ids
+
+  # On-demand node group configuration
+  ondemand_instance_types = var.ondemand_instance_types
+  ondemand_min_size       = var.ondemand_min_size
+  ondemand_max_size       = var.ondemand_max_size
+  ondemand_desired_size   = var.ondemand_desired_size
+
+  # Spot node group configuration (optional)
+  enable_spot_node_group = var.enable_spot_node_group
+  spot_instance_types    = var.spot_instance_types
+  spot_min_size          = var.spot_min_size
+  spot_max_size          = var.spot_max_size
+  spot_desired_size      = var.spot_desired_size
+
+  cost_center = var.cost_center
+  common_tags = var.common_tags
+
+  depends_on = [
+    module.eks,
+    module.iam,
+    module.security_groups
+  ]
+}

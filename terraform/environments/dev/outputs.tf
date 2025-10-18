@@ -126,3 +126,24 @@ output "eks_kms_key_arn" {
   description = "KMS key ARN for EKS encryption"
   value       = module.eks.kms_key_arn
 }
+
+# EKS Node Groups Outputs
+output "ondemand_node_group_id" {
+  description = "On-demand node group ID"
+  value       = module.eks_node_groups.ondemand_node_group_id
+}
+
+output "ondemand_node_group_status" {
+  description = "On-demand node group status"
+  value       = module.eks_node_groups.ondemand_node_group_status
+}
+
+output "spot_node_group_id" {
+  description = "Spot node group ID"
+  value       = module.eks_node_groups.spot_node_group_id
+}
+
+output "node_groups_summary" {
+  description = "Summary of all node groups"
+  value       = module.eks_node_groups.node_groups_summary
+}
