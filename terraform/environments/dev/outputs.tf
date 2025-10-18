@@ -80,3 +80,8 @@ output "iam_roles_summary" {
   description = "Summary of all IAM roles"
   value       = module.iam.iam_roles_summary
 }
+
+output "aws_region" {
+  description = "AWS region"
+  value       = var.aws_region
+}

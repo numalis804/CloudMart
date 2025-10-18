@@ -16,7 +16,6 @@ terraform {
     region  = "eu-central-1"
     encrypt = true
 
-    # DynamoDB table for state locking
     dynamodb_table = "cloudmart-terraform-lock"
   }
 }
@@ -43,7 +42,7 @@ module "vpc" {
   availability_zones = var.availability_zones
 
   enable_nat_gateway = true
-  single_nat_gateway = true  # Cost optimization for dev
+  single_nat_gateway = true
   enable_flow_logs   = true
 
   common_tags = var.common_tags
@@ -57,7 +56,6 @@ module "security_groups" {
   environment  = var.environment
   vpc_id       = module.vpc.vpc_id
 
-  # Optional: Enable bastion for dev environment
   enable_bastion_sg     = false
   bastion_allowed_cidrs = []
 
@@ -73,7 +71,7 @@ module "iam" {
   project_name = var.project_name
   environment  = var.environment
 
-  # IRSA will be enabled after EKS cluster creation in Phase 2
+  # IRSA disabled until EKS cluster is created
   enable_irsa             = false
   eks_oidc_provider_arn   = ""
   eks_oidc_provider       = ""
