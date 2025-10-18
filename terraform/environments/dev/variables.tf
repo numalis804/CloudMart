@@ -41,7 +41,7 @@ variable "common_tags" {
 variable "eks_cluster_version" {
   description = "Kubernetes version for EKS cluster"
   type        = string
-  default     = "1.28"
+  default     = "1.31"
 }
 
 # Node Groups Configuration
