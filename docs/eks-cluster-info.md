@@ -281,3 +281,123 @@ cd ~/GitHub/CloudMart/scripts
 
 ---
 **Last Updated:** $(date +"%Y-%m-%d %H:%M:%S")
+
+---
+
+## Step 2.3: Add-ons & IRSA Complete
+
+### EKS Managed Add-ons
+
+✅ **CoreDNS**
+- Version: Latest compatible with 1.31
+- Status: Active
+- Pods: 2 replicas
+- Function: DNS resolution for services
+
+✅ **EBS CSI Driver**
+- Version: Latest compatible with 1.31
+- Status: Active with IRSA
+- Function: Persistent volume provisioning
+
+### Kubernetes Components
+
+✅ **Metrics Server**
+- Provides resource metrics for HPA and monitoring
+- Commands: `kubectl top nodes`, `kubectl top pods`
+
+✅ **AWS Load Balancer Controller**
+- Version: v2.7.0
+- Manages ALB and NLB for Ingress resources
+- IRSA Role: Configured
+
+### IRSA Service Account Roles
+
+All IAM roles created with proper OIDC trust relationships:
+
+1. **Frontend SA:** `cloudmart-frontend-sa`
+   - Permissions: CloudWatch Logs
+   - Namespace: cloudmart-dev
+
+2. **API SA:** `cloudmart-api-sa`
+   - Permissions: Parameter Store, Secrets Manager, CloudWatch Logs
+   - Namespace: cloudmart-dev
+
+3. **Worker SA:** `cloudmart-worker-sa`
+   - Permissions: Parameter Store, Secrets Manager, CloudWatch Logs, SES
+   - Namespace: cloudmart-dev
+
+4. **AWS LB Controller SA:** `aws-load-balancer-controller`
+   - Permissions: Full ALB/NLB management
+   - Namespace: kube-system
+
+5. **EBS CSI Driver SA:** `ebs-csi-controller-sa`
+   - Permissions: EBS volume management
+   - Namespace: kube-system
+
+### Using IRSA in Deployments
+
+Example deployment with IRSA:
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudmart-api
+  namespace: cloudmart-dev
+spec:
+  template:
+    spec:
+      serviceAccountName: cloudmart-api-sa
+      containers:
+      - name: api
+        image: myapi:latest
+        # Pod automatically gets IAM credentials via IRSA
+```
+
+### Verification Commands
+```bash
+# Check all add-ons
+aws eks list-addons --cluster-name cloudmart-dev
+
+# View CoreDNS
+kubectl get pods -n kube-system -l k8s-app=kube-dns
+
+# View EBS CSI Driver
+kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-ebs-csi-driver
+
+# Check metrics
+kubectl top nodes
+kubectl top pods -A
+
+# View AWS Load Balancer Controller
+kubectl get deployment aws-load-balancer-controller -n kube-system
+
+# View service accounts
+kubectl get sa -n cloudmart-dev
+
+# Verify IRSA annotation
+kubectl describe sa cloudmart-api-sa -n cloudmart-dev
+
+# Run verification script
+cd ~/GitHub/CloudMart/scripts
+./verify-addons.sh
+```
+
+### Storage Classes
+
+Default storage class for EBS volumes:
+```bash
+kubectl get storageclass
+```
+
+Available: `gp2`, `gp3` (recommended), `io1`, `io2`
+
+### Next Steps
+
+✅ Phase 1: VPC, Security Groups, IAM
+✅ Step 2.1: EKS Cluster
+✅ Step 2.2: Node Groups
+✅ Step 2.3: Add-ons & IRSA
+⏭️ Step 2.4: Application Deployment Setup
+
+---
+**Step 2.3 Complete:** $(date +"%Y-%m-%d %H:%M:%S")

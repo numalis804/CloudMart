@@ -104,3 +104,10 @@ variable "cost_center" {
   type        = string
   default     = "CloudMart-Development"
 }
+
+# Cluster Autoscaler
+variable "enable_cluster_autoscaler" {
+  description = "Enable Cluster Autoscaler"
+  type        = bool
+  default     = false
+}

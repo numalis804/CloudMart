@@ -147,3 +147,40 @@ output "node_groups_summary" {
   description = "Summary of all node groups"
   value       = module.eks_node_groups.node_groups_summary
 }
+
+# EKS Add-ons Outputs
+output "coredns_addon_version" {
+  description = "CoreDNS add-on version"
+  value       = module.eks_addons.coredns_addon_version
+}
+
+output "ebs_csi_driver_addon_version" {
+  description = "EBS CSI Driver add-on version"
+  value       = module.eks_addons.ebs_csi_driver_addon_version
+}
+
+# IRSA Roles
+output "frontend_sa_role_arn" {
+  description = "Frontend service account role ARN"
+  value       = module.eks_addons.frontend_sa_role_arn
+}
+
+output "api_sa_role_arn" {
+  description = "API service account role ARN"
+  value       = module.eks_addons.api_sa_role_arn
+}
+
+output "worker_sa_role_arn" {
+  description = "Worker service account role ARN"
+  value       = module.eks_addons.worker_sa_role_arn
+}
+
+output "aws_load_balancer_controller_role_arn" {
+  description = "AWS Load Balancer Controller role ARN"
+  value       = module.eks_addons.aws_load_balancer_controller_role_arn
+}
+
+output "irsa_roles_summary" {
+  description = "Summary of all IRSA roles"
+  value       = module.eks_addons.irsa_roles_summary
+}

@@ -152,3 +152,29 @@ module "eks_node_groups" {
     module.security_groups
   ]
 }
+
+# EKS Add-ons Module (Post Node Groups)
+module "eks_addons" {
+  source = "../../modules/eks-addons"
+
+  project_name = var.project_name
+  environment  = var.environment
+  cluster_name = module.eks.cluster_id
+
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider     = module.eks.oidc_provider
+
+  parameter_store_policy_arn = module.iam.parameter_store_policy_arn
+  secrets_manager_policy_arn = module.iam.secrets_manager_policy_arn
+
+  kubernetes_namespace = "${var.project_name}-${var.environment}"
+
+  enable_cluster_autoscaler = var.enable_cluster_autoscaler
+
+  common_tags = var.common_tags
+
+  depends_on = [
+    module.eks,
+    module.eks_node_groups
+  ]
+}
